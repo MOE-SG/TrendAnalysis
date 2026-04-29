@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manufacturing Trended Failure Analysis Report — Live Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<style>
+  :root {
+    --bg: #F2EFE8;
+    --surface: #FFFFFF;
+    --ink: #1A1F2C;
+    --ink-soft: #4A5568;
+    --ink-mute: #8B95A7;
+    --line: #DDD8CC;
+    --line-soft: #EBE6DC;
+    --orange: #E8743C;
+    --orange-deep: #C85A26;
+    --green: #4A7C3F;
+    --green-deep: #2C5F2D;
+    --slide-bg: #FFFFFF;
+    --shadow-sm: 0 1px 2px rgba(26,31,44,0.04), 0 4px 12px rgba(26,31,44,0.05);
+    --shadow-md: 0 2px 4px rgba(26,31,44,0.04), 0 12px 28px rgba(26,31,44,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+    font-size: 14px;
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(232,116,60,0.05), transparent 35%),
+      radial-gradient(circle at 100% 100%, rgba(74,124,63,0.04), transparent 35%);
+  }
+
+  /* ============== APP SHELL ============== */
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  /* ============== HEADER ============== */
+  header {
+    background: var(--ink);
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-mark {
+    width: 32px; height: 32px;
+    background: var(--orange);
+    border-radius: 8px;
+    display: grid; place-items: center;
+    font-family: 'Archivo', sans-serif;
+    font-weight: 900;
+    font-size: 16px;
+    color: white;
+  }
+  .brand-text h1 {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .brand-text p {
+    font-size: 10px;
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+  .header-stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .header-stats .progress-mini {
+    width: 100px;
+    height: 5px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .header-stats .progress-mini-fill {
+    height: 100%;
+    background: var(--orange);
+    transition: width 0.3s;
+  }
+  .header-actions { display: flex; gap: 8px; }
+  .btn {
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--orange);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--orange-deep); transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.16); }
+
+  /* ============== MAIN LAYOUT ============== */
+  main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    overflow: hidden;
+  }
+
+  /* ============== LEFT: SLIDE PREVIEW ============== */
+  .preview-pane {
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .preview-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(8px);
+  }
+  .nav-arrows { display: flex; gap: 6px; align-items: center; }
+  .nav-btn {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    cursor: pointer;
+    color: var(--ink);
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--orange); color: white; border-color: var(--orange); }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .slide-counter {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    min-width: 70px;
+    text-align: center;
+  }
+  .slide-name {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .preview-stage {
+    flex: 1;
+    overflow: auto;
+    padding: 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .slide-frame {
+    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 16 / 9;
+    background: var(--slide-bg);
+    border-radius: 6px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+    font-family: 'Calibri', 'IBM Plex Sans', sans-serif;
+    color: var(--ink);
+    container-type: inline-size;
+  }
+  .slide-frame .empty-hint {
+    color: var(--ink-mute);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* Thumbnail strip */
+  .thumb-strip {
+    display: flex;
+    gap: 10px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--line);
+    background: rgba(255,255,255,0.5);
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+  .thumb {
+    flex-shrink: 0;
+    width: 110px;
+    aspect-ratio: 16/9;
+    background: white;
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.15s;
+  }
+  .thumb:hover { border-color: var(--ink-soft); }
+  .thumb.active {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(232,116,60,0.18);
+  }
+  .thumb-num {
+    position: absolute;
+    top: 4px; left: 4px;
+    background: rgba(26,31,44,0.7);
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    z-index: 2;
+  }
+  .thumb-mini-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .thumb-mini {
+    transform: scale(0.122);
+    transform-origin: top left;
+    width: 900px;
+    aspect-ratio: 16/9;
+    pointer-events: none;
+  }
+  .thumb-mini .slide-frame {
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .thumb-status {
+    position: absolute;
+    bottom: 4px; right: 4px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--ink-mute);
+    z-index: 2;
+  }
+  .thumb-status.partial { background: var(--orange); }
+  .thumb-status.complete { background: var(--green-deep); }
+
+  /* ============== RIGHT: FORM PANE ============== */
+  .form-pane {
+    background: var(--surface);
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .form-header {
+    padding: 18px 24px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .form-header .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--orange);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+  }
+  .form-header h2 {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .form-header .desc {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+  }
+  .form-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 24px 24px;
+  }
+  .field-group { margin-bottom: 18px; }
+  .field-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .field-label .label-text {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .field-label .label-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .field-hint {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .field-input, .field-textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--bg);
+    transition: all 0.15s;
+    resize: vertical;
+  }
+  .field-textarea {
+    min-height: 80px;
+    line-height: 1.5;
+  }
+  .field-input:focus, .field-textarea:focus {
+    outline: none;
+    border-color: var(--orange);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(232,116,60,0.1);
+  }
+  .field-input::placeholder, .field-textarea::placeholder {
+    color: #B5BCC9;
+    font-style: italic;
+  }
+  .field-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .field-toggle:hover { border-color: var(--ink-soft); }
+  .field-toggle input { cursor: pointer; }
+  .field-toggle .toggle-text {
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .form-divider {
+    margin: 24px 0 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line-soft);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .form-footer {
+    padding: 14px 24px;
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .footer-btn {
+    background: white;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .footer-btn:hover:not(:disabled) {
+    background: var(--ink);
+    color: white;
+    border-color: var(--ink);
+  }
+  .footer-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .footer-btn.next {
+    background: var(--orange);
+    color: white;
+    border-color: var(--orange);
+  }
+  .footer-btn.next:hover:not(:disabled) {
+    background: var(--orange-deep);
+    border-color: var(--orange-deep);
+  }
+  .footer-btn.next:disabled { background: var(--line); border-color: var(--line); color: var(--ink-mute); opacity: 1; }
+
+  /* ============== SLIDE TEMPLATES (preview only) ============== */
+  .sf { position: absolute; }
+
+  /* Slide 1 */
+  .s1-bar {
+    top: 0; left: 0; width: 100%;
+    background: var(--orange);
+    color: white;
+    font-weight: 700;
+    font-size: 1.5cqw;
+    padding: 0.8cqw 1.5cqw;
+    display: flex;
+    align-items: center;
+    height: 5.5%;
+  }
+  .s1-chart-area {
+    top: 13%; left: 3%; width: 60%; height: 80%;
+    background: #FAFAFA;
+    border: 1px dashed var(--line);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5cqw;
+  }
+  .s1-chart-area .chart-title {
+    font-size: 1.1cqw;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-bottom: 0.5cqw;
+  }
+  .s1-chart-bars {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    gap: 1cqw;
+    padding-top: 1cqw;
+  }
+  .s1-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3cqw;
+    max-width: 8cqw;
+    height: 100%;
+    justify-content: flex-end;
+  }
+  .s1-bar-val {
+    font-size: 0.85cqw;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .s1-bar-shape {
+    width: 60%;
+    background: var(--orange);
+    border-radius: 2px 2px 0 0;
+    min-height: 2px;
+  }
+  .s1-bar-label {
+    font-size: 0.85cqw;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .s1-stat {
+    position: absolute;
+    left: 68%; width: 30%;
+  }
+  .s1-stat-num {
+    font-size: 4.5cqw;
+    font-weight: 800;
+    color: var(--orange);
+    line-height: 1;
+  }
+  .s1-stat-desc {
+    font-size: 0.95cqw;
+    color: var(--ink);
+    margin-top: 0.3cqw;
+    line-height: 1.3;
+  }
+
+  /* Slide 2 */
+  .s2-side-title {
+    top: 6%; left: 3%; width: 28%;
+    font-family: 'Archivo', sans-serif;
+    font-size: 3.5cqw;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .s2-fields {
+    top: 5%; left: 32%; width: 65%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2cqw;
+  }
+  .s2-field { display: flex; flex-direction: column; }
+  .s2-field-label {
+    align-self: center;
+    background: var(--orange);
+    color: white;
+    font-size: 1.1cqw;
+    font-weight: 700;
+    padding: 0.5cqw 2cqw;
+    border-radius: 0.4cqw 0.4cqw 0 0;
+    width: 35%;
+    text-align: center;
+  }
+  .s2-field-value {
+    border: 1px solid var(--orange);
+    padding: 0.8cqw 1.2cqw;
+    font-size: 1.05cqw;
+    color: var(--ink);
+    border-radius: 0 0 0.3cqw 0.3cqw;
+    min-height: 2.2cqw;
+    line-height: 1.5;
+  }
+  .s2-field-value ul { padding-left: 1.5cqw; margin: 0; }
+  .s2-field-value li { margin: 0.15cqw 0; }
+
+  /* Slide 3 */
+  .s3-title {
+    top: 5%; left: 3%; width: 27%;
+    font-family: 'Archivo', sans-serif;
+    font-size: 2.6cqw;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .s3-sections {
+    top: 5%; left: 32%; width: 65%;
+    display: flex;
+    flex-direction: column;
+    gap: 1cqw;
+  }
+  .s3-section { display: flex; flex-direction: column; }
+  .s3-sec-header {
+    background: var(--orange);
+    color: white;
+    font-size: 1.15cqw;
+    font-weight: 700;
+    padding: 0.5cqw 1cqw;
+  }
+  .s3-sec-body {
+    border: 1px solid var(--orange);
+    padding: 0.8cqw 1cqw 0.8cqw 2cqw;
+    font-size: 1cqw;
+    color: var(--ink);
+    line-height: 1.4;
+    min-height: 2.5cqw;
+  }
+  .s3-sec-body ul { padding-left: 1cqw; margin: 0; }
+  .s3-sec-body li { margin: 0.15cqw 0; }
+
+  /* Slide 4 */
+  .s4-title {
+    top: 5%; left: 3%; width: 27%;
+    font-family: 'Archivo', sans-serif;
+    font-size: 2.4cqw;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .s4-blocks {
+    top: 5%; left: 32%; width: 65%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5cqw;
+  }
+  .s4-block { display: flex; flex-direction: column; }
+  .s4-block-tag {
+    color: white;
+    font-size: 1.25cqw;
+    font-weight: 700;
+    padding: 0.5cqw 1cqw;
+  }
+  .s4-block-tag.orange { background: var(--orange); }
+  .s4-block-tag.green { background: var(--green-deep); }
+  .s4-block-body {
+    border: 1px solid;
+    padding: 0.8cqw 1cqw 1cqw;
+    font-size: 1cqw;
+    color: var(--ink);
+    line-height: 1.4;
+    min-height: 4cqw;
+  }
+  .s4-block-body.orange { border-color: var(--orange); }
+  .s4-block-body.green { border-color: var(--green-deep); }
+  .s4-block-subtitle {
+    font-style: italic;
+    font-weight: 700;
+    margin-bottom: 0.6cqw;
+    font-size: 1.05cqw;
+  }
+  .s4-block-subtitle.orange { color: var(--orange); }
+  .s4-block-subtitle.green { color: var(--green-deep); }
+  .s4-block-body ul { padding-left: 2cqw; margin: 0; }
+  .s4-block-body li { margin: 0.15cqw 0; }
+
+  /* Slide 5 */
+  .s5-bg { inset: 0; background: var(--orange); }
+  .s5-title {
+    top: 5%; left: 0; width: 100%;
+    text-align: center;
+    color: white;
+    font-family: 'Archivo', sans-serif;
+    font-size: 2.5cqw;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .s5-cards {
+    top: 18%; left: 6%; width: 88%; height: 75%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5%;
+  }
+  .s5-card {
+    background: white;
+    border-radius: 0.5cqw;
+    padding: 1.5cqw 2cqw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .s5-icon {
+    width: 4cqw; height: 4cqw;
+    background: var(--green);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: 2.5cqw;
+    font-weight: 700;
+    margin-bottom: 0.8cqw;
+  }
+  .s5-card-title {
+    font-family: 'Archivo', sans-serif;
+    font-size: 1.8cqw;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 1cqw;
+    letter-spacing: 0.05em;
+  }
+  .s5-card-body {
+    font-size: 1.1cqw;
+    color: var(--ink);
+    line-height: 1.4;
+    align-self: stretch;
+  }
+  .s5-card-body ul { padding-left: 1.5cqw; margin: 0; }
+  .s5-card-body li { margin: 0.25cqw 0; }
+
+  /* Slide 6 / 7 placeholders */
+  .s6-title {
+    top: 4%; left: 3%; width: 94%;
+    font-family: 'Archivo', sans-serif;
+    font-size: 1.6cqw;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .s6-grid {
+    top: 12%; left: 3%; width: 94%; height: 84%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1.5cqw;
+  }
+  .s6-cell { display: flex; flex-direction: column; border-radius: 0.3cqw; overflow: hidden; }
+  .s6-cell-head {
+    background: var(--orange);
+    color: white;
+    font-size: 1.1cqw;
+    font-weight: 700;
+    padding: 0.5cqw 1cqw;
+  }
+  .s6-cell-body {
+    flex: 1;
+    background: #F8F6F0;
+    border: 1px solid var(--line);
+    border-top: none;
+    display: grid;
+    place-items: center;
+    color: var(--ink-soft);
+    font-style: italic;
+    font-size: 1cqw;
+  }
+  .s7-stack { top: 4%; left: 3%; width: 94%; height: 92%; display: flex; flex-direction: column; gap: 1cqw; }
+  .s7-section { flex: 1; display: flex; flex-direction: column; }
+  .s7-section-title {
+    font-family: 'Archivo', sans-serif;
+    font-size: 1.4cqw;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.5cqw;
+  }
+  .s7-section-body {
+    flex: 1;
+    background: #F8F6F0;
+    border: 1px solid var(--line);
+    border-radius: 0.3cqw;
+    display: grid;
+    place-items: center;
+    color: var(--ink-soft);
+    font-style: italic;
+    font-size: 1cqw;
+  }
+  .slide-disabled {
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: repeating-linear-gradient(45deg, #FAFAFA, #FAFAFA 10px, #F2F0EA 10px, #F2F0EA 20px);
+    color: var(--ink-mute);
+    text-align: center;
+    padding: 2cqw;
+  }
+  .slide-disabled .icon {
+    font-size: 4cqw;
+    margin-bottom: 1cqw;
+    opacity: 0.4;
+  }
+  .slide-disabled .msg {
+    font-size: 1.4cqw;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 0.5cqw;
+  }
+  .slide-disabled .sub {
+    font-size: 1cqw;
+    opacity: 0.8;
+  }
+
+  /* ============== TOAST ============== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--ink);
+    color: white;
+    padding: 12px 22px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    z-index: 100;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--green-deep); }
+
+  /* ============== CONFIRM SHEET ============== */
+  .sheet-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26,31,44,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 200;
+    backdrop-filter: blur(4px);
+  }
+  .sheet-overlay.show { display: flex; }
+  .sheet {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .sheet h3 {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  .sheet p {
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+  .sheet-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .sheet-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .sheet-btn.cancel { background: var(--bg); color: var(--ink); border: 1px solid var(--line); }
+  .sheet-btn.cancel:hover { background: var(--line); }
+  .sheet-btn.danger { background: #C53030; color: white; }
+  .sheet-btn.danger:hover { background: #9B2C2C; }
+
+  /* ============== RESPONSIVE ============== */
+  @media (max-width: 1024px) {
+    main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+    .form-pane { border-left: none; border-top: 1px solid var(--line); }
+    .preview-stage { padding: 14px; }
+  }
+  @media (max-width: 600px) {
+    .brand-text p { display: none; }
+    .header-stats { display: none; }
+    main { grid-template-rows: minmax(220px, 40vh) 1fr; }
+    .preview-stage { padding: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">R</div>
+      <div class="brand-text">
+        <h1>Manufacturing Trended Failure Analysis Report Builder</h1>
+        <p>Live Preview Editor</p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <span id="completionLabel">0% complete</span>
+      <div class="progress-mini"><div class="progress-mini-fill" id="progressMini" style="width:0%"></div></div>
+      <span id="fieldCount">0 / 0</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="loadDemo()">Sample data</button>
+      <button class="btn btn-ghost" onclick="askReset()">Reset</button>
+      <button class="btn btn-primary" id="downloadBtn" onclick="generatePPTX()">↓ Download .pptx</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="preview-pane">
+      <div class="preview-toolbar">
+        <div class="nav-arrows">
+          <button class="nav-btn" id="prevBtn" onclick="navSlide(-1)">‹</button>
+          <span class="slide-counter" id="slideCounter">1 / 7</span>
+          <button class="nav-btn" id="nextBtn" onclick="navSlide(1)">›</button>
+        </div>
+        <span class="slide-name" id="slideName">Title Slide</span>
+        <span style="font-size: 11px; color: var(--ink-mute); font-family: 'IBM Plex Mono', monospace;">LIVE PREVIEW</span>
+      </div>
+      <div class="preview-stage">
+        <div class="slide-frame" id="slideFrame"></div>
+      </div>
+      <div class="thumb-strip" id="thumbStrip"></div>
+    </section>
+
+    <aside class="form-pane">
+      <div class="form-header">
+        <div class="eyebrow" id="formEyebrow">Slide 1 of 7</div>
+        <h2 id="formTitle">Title Slide</h2>
+        <p class="desc" id="formDesc">Fill in the report header and the three headline statistics.</p>
+      </div>
+      <div class="form-body" id="formBody"></div>
+      <div class="form-footer">
+        <button class="footer-btn" id="footerPrev" onclick="navSlide(-1)">← Previous</button>
+        <span style="font-size: 11px; color: var(--ink-mute); font-family: 'IBM Plex Mono', monospace;" id="footerStatus">—</span>
+        <button class="footer-btn next" id="footerNext" onclick="navSlide(1)">Next →</button>
+      </div>
+    </aside>
+  </main>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="sheet-overlay" id="resetSheet">
+  <div class="sheet">
+    <h3>Reset all answers?</h3>
+    <p>This will clear every field across all slides. This action cannot be undone.</p>
+    <div class="sheet-actions">
+      <button class="sheet-btn cancel" onclick="closeReset()">Cancel</button>
+      <button class="sheet-btn danger" onclick="doReset()">Yes, reset everything</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA MODEL
+   ============================================================ */
+const SLIDES_META = [
+  { num: 1, name: 'Title Slide',         desc: 'Fill in the report header and the three headline statistics.' },
+  { num: 2, name: 'Situation Overview',  desc: 'Provide the part-level context and current status.' },
+  { num: 3, name: 'Action Summary',      desc: 'Document analysis findings and corrective actions.' },
+  { num: 4, name: 'Open Questions',      desc: 'Capture decisions still required, both urgent and long-term.' },
+  { num: 5, name: 'Plus and Delta',      desc: 'List what went well and what could be improved.' },
+  { num: 6, name: 'Internal Data',       desc: 'Optional — generates a placeholder slide for tables you paste later.' },
+  { num: 7, name: 'External Data',       desc: 'Optional — generates a placeholder slide for external test data.' },
+];
+
+const FIELDS = {
+  1: [
+    { id: 's1_title',     label: 'Report title',       type: 'text',     required: true,  placeholder: 'Manufacturing FAILURE TREND' },
+    { id: 's1_subtitle',  label: 'Date range',         type: 'text',     placeholder: '2022–2025', hint: 'Shown after the title with a separator.' },
+    { id: 's1_pn',        label: 'Part number',        type: 'text',     placeholder: 'PN 102406465' },
+    { id: '__divider1',   label: 'Headline statistics' },
+    { id: 's1_stat1_num', label: 'Stat #1 — number',   type: 'text',     placeholder: '25x', hint: 'Keep it short and punchy.' },
+    { id: 's1_stat1_desc',label: 'Stat #1 — caption',  type: 'textarea', placeholder: 'failure spike in 2025 vs 2022 baseline', rows: 2 },
+    { id: 's1_stat2_num', label: 'Stat #2 — number',   type: 'text',     placeholder: '~6–25x' },
+    { id: 's1_stat2_desc',label: 'Stat #2 — caption',  type: 'textarea', placeholder: 'increase vs prior years average', rows: 2 },
+    { id: 's1_stat3_num', label: 'Stat #3 — number',   type: 'text',     placeholder: '4' },
+    { id: 's1_stat3_desc',label: 'Stat #3 — caption',  type: 'textarea', placeholder: 'customer escapes (incoming test failure)', rows: 2 },
+    { id: '__divider2',   label: 'Optional chart' },
+    { id: 's1_chart_data',label: 'Yearly counts',      type: 'text',     placeholder: '2022=4, 2023=4, 2024=25, 2025=100', hint: 'Format: year=count, comma-separated. Leave blank to skip the chart.' },
+  ],
+  2: [
+    { id: 's2_board_pn',         label: 'Board PN',           type: 'text',     placeholder: '102406465' },
+    { id: 's2_component',         label: 'Component type',     type: 'text',     placeholder: '10155269' },
+    { id: 's2_date_code',         label: 'Date code in use',   type: 'text',     placeholder: '2205' },
+    { id: 's2_boards_tested',     label: 'Boards tested',      type: 'text',     placeholder: '152 boards tested in 2025' },
+    { id: 's2_customer_impact',   label: 'Customer impact',    type: 'textarea', placeholder: '4 failed at district level\nMost are from last 130 pcs DC 2205', rows: 4, hint: 'One bullet per line.' },
+    { id: 's2_production_status', label: 'Production status',  type: 'textarea', placeholder: 'Production Resumed at the end of this meeting', rows: 3 },
+  ],
+  3: [
+    { id: 's3_date',     label: 'As-of date', type: 'text', placeholder: '6 April 2026' },
+    { id: 's3_analysis', label: 'Analysis',   type: 'textarea', rows: 5,
+      placeholder: 'All warehouse stocks on 102406465 are screened\nOther 2 part numbers also tested and passed\n…',
+      hint: 'One bullet per line.' },
+    { id: 's3_yield',    label: 'In-house test yield — actions', type: 'textarea', rows: 3,
+      placeholder: 'Replace if fail\nTask to charge rework' },
+    { id: 's3_latent',   label: 'Latent failure — actions',      type: 'textarea', rows: 3,
+      placeholder: 'Field Notification SCM-26-EWR-01\nIn House Screening' },
+  ],
+  4: [
+    { id: '__divider1', label: 'Urgent / High priority' },
+    { id: 's4_urgent_title',  label: 'Topic',  type: 'text',     placeholder: 'Component Decision — New Batch or New Source?' },
+    { id: 's4_urgent_points', label: 'Points', type: 'textarea', rows: 5,
+      placeholder: 'Recommend to vendor: validate this date code\nAgreed: Try a new batch\nWhen to lift Production Hold?',
+      hint: 'One bullet per line.' },
+    { id: '__divider2', label: 'Long term' },
+    { id: 's4_long_term_title',  label: 'Topic',  type: 'text', placeholder: 'Handoff root cause investigation to Supplier Quality team' },
+    { id: 's4_long_term_points', label: 'Points', type: 'textarea', rows: 4,
+      placeholder: 'Handoff investigation: storage, shelf life, handling\nFailure Analysis on failed units from districts' },
+  ],
+  5: [
+    { id: 's5_plus',  label: 'PLUS — what went well',     type: 'textarea', rows: 6,
+      placeholder: 'SCM is done quickly with full support\nFailure identified to specific batch / vendor / part\nTask to charge rework',
+      hint: 'One bullet per line.' },
+    { id: 's5_delta', label: 'DELTA — what could improve', type: 'textarea', rows: 6,
+      placeholder: 'Lots of overhead\nUnsure how good is additional screening\nMay or may not find the exact cause' },
+  ],
+  6: [
+    { id: 's6_include', label: 'Include this slide in the .pptx?', type: 'toggle',
+      hint: 'Adds an Internal Data slide with placeholder tables for Warehouse Stock, Move To Stock, FALL Entries, and PCA Reference. You can paste real data into PowerPoint after download.' },
+  ],
+  7: [
+    { id: 's7_include', label: 'Include this slide in the .pptx?', type: 'toggle',
+      hint: 'Adds an External Data slide with placeholder tables for "Failed at District" and "CBM Info of Different POs".' },
+  ],
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let answers = {};
+let currentSlide = 1;
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('ramReportLive');
+    if (raw) {
+      const data = JSON.parse(raw);
+      answers = data.answers || {};
+      currentSlide = data.currentSlide || 1;
+    }
+  } catch (e) { console.warn(e); }
+}
+function saveState() {
+  try {
+    localStorage.setItem('ramReportLive', JSON.stringify({ answers, currentSlide }));
+  } catch (e) { console.warn(e); }
+}
+function v(id, fallback = '') {
+  const x = answers[id];
+  if (x === undefined || x === null || x === '') return fallback;
+  return x;
+}
+function setVal(id, val) {
+  answers[id] = val;
+  saveState();
+  renderSlide(currentSlide);
+  updateThumb(currentSlide);
+  updateProgress();
+}
+function bullets(text) {
+  if (!text) return [];
+  return String(text).split('\n').map(l => l.trim()).filter(Boolean);
+}
+function totalFields() {
+  let n = 0;
+  for (const slide of Object.keys(FIELDS)) {
+    for (const f of FIELDS[slide]) {
+      if (f.id.startsWith('__')) continue;
+      if (f.type === 'toggle') continue;
+      n++;
+    }
+  }
+  return n;
+}
+function answeredFields() {
+  let n = 0;
+  for (const slide of Object.keys(FIELDS)) {
+    for (const f of FIELDS[slide]) {
+      if (f.id.startsWith('__')) continue;
+      if (f.type === 'toggle') continue;
+      const val = answers[f.id];
+      if (val !== undefined && val !== null && String(val).trim() !== '') n++;
+    }
+  }
+  return n;
+}
+function slideStatus(slideNum) {
+  const fs = FIELDS[slideNum].filter(f => !f.id.startsWith('__') && f.type !== 'toggle');
+  if (fs.length === 0) {
+    const toggle = FIELDS[slideNum].find(f => f.type === 'toggle');
+    if (toggle && answers[toggle.id]) return 'complete';
+    return 'empty';
+  }
+  const filled = fs.filter(f => {
+    const val = answers[f.id];
+    return val !== undefined && val !== null && String(val).trim() !== '';
+  }).length;
+  if (filled === 0) return 'empty';
+  if (filled === fs.length) return 'complete';
+  return 'partial';
+}
+
+/* ============================================================
+   ESCAPING / HELPERS
+   ============================================================ */
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escAttr(s) { return esc(s); }
+function bulletsToHtml(txt, fallback) {
+  const items = bullets(txt);
+  if (items.length === 0) {
+    return fallback ? `<span class="empty-hint">${esc(fallback)}</span>` : '';
+  }
+  if (items.length === 1) return esc(items[0]);
+  return `<ul>${items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`;
+}
+function combine(...lines) { return lines.filter(Boolean).join('\n'); }
+function parseChartData(s) {
+  if (!s) return null;
+  const pairs = s.split(',').map(p => p.trim()).filter(Boolean);
+  const labels = [], values = [];
+  for (const p of pairs) {
+    const m = p.match(/^(.+?)\s*[=:]\s*(\-?[\d.]+)$/);
+    if (!m) continue;
+    labels.push(m[1].trim());
+    values.push(parseFloat(m[2]));
+  }
+  return labels.length > 0 ? { labels, values } : null;
+}
+
+/* ============================================================
+   PREVIEW RENDERERS
+   ============================================================ */
+function renderSlide(num) {
+  const frame = document.getElementById('slideFrame');
+  if (!frame) return;
+  frame.innerHTML = getSlideHtml(num);
+  frame.style.background = (num === 5) ? '#E8743C' : 'white';
+}
+function getSlideHtml(num) {
+  if (num === 1) return renderS1();
+  if (num === 2) return renderS2();
+  if (num === 3) return renderS3();
+  if (num === 4) return renderS4();
+  if (num === 5) return renderS5();
+  if (num === 6) return renderS6();
+  if (num === 7) return renderS7();
+  return '';
+}
+function renderS1() {
+  const titleParts = [v('s1_title'), v('s1_subtitle'), v('s1_pn')].filter(Boolean).join(' | ')
+    || '<span class="empty-hint">Title | date range | PN</span>';
+  let chartHtml = '';
+  const data = parseChartData(v('s1_chart_data'));
+  if (data) {
+    const max = Math.max(...data.values, 1);
+    chartHtml = `
+      <div class="sf s1-chart-area">
+        <div class="chart-title">Annual Failures</div>
+        <div class="s1-chart-bars">
+          ${data.labels.map((l, i) => `
+            <div class="s1-bar-col">
+              <div class="s1-bar-val">${esc(data.values[i])}</div>
+              <div class="s1-bar-shape" style="height:${(data.values[i]/max)*85}%"></div>
+              <div class="s1-bar-label">${esc(l)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  } else {
+    chartHtml = `
+      <div class="sf s1-chart-area" style="display:flex; align-items:center; justify-content:center;">
+        <span class="empty-hint">Chart appears here when you enter yearly counts</span>
+      </div>`;
+  }
+  const stats = [
+    { num: v('s1_stat1_num'), desc: v('s1_stat1_desc'), top: '14%' },
+    { num: v('s1_stat2_num'), desc: v('s1_stat2_desc'), top: '40%' },
+    { num: v('s1_stat3_num'), desc: v('s1_stat3_desc'), top: '67%' },
+  ];
+  const statsHtml = stats.map(s => `
+    <div class="s1-stat" style="top:${s.top};">
+      <div class="s1-stat-num">${s.num ? esc(s.num) : '<span class="empty-hint" style="font-size:1.4cqw;">—</span>'}</div>
+      <div class="s1-stat-desc">${s.desc ? esc(s.desc) : '<span class="empty-hint">add caption</span>'}</div>
+    </div>
+  `).join('');
+  return `
+    <div class="sf s1-bar">${titleParts}</div>
+    ${chartHtml}
+    ${statsHtml}
+  `;
+}
+function renderS2() {
+  const fieldsHtml = [
+    { label: 'Board PN',         val: v('s2_board_pn') },
+    { label: 'Component Type',   val: v('s2_component') },
+    { label: 'Date Code In Use', val: v('s2_date_code') },
+    { label: 'Customer Impact',  val: combine(v('s2_boards_tested'), v('s2_customer_impact')) },
+    { label: 'Production Status',val: v('s2_production_status') },
+  ].map(f => `
+    <div class="s2-field">
+      <div class="s2-field-label">${esc(f.label)}</div>
+      <div class="s2-field-value">${bulletsToHtml(f.val, '—')}</div>
+    </div>
+  `).join('');
+  return `
+    <div class="sf s2-side-title">Situation<br>Overview</div>
+    <div class="sf s2-fields">${fieldsHtml}</div>
+  `;
+}
+function renderS3() {
+  const dateStr = v('s3_date');
+  const title = `Action Summary${dateStr ? ' as of ' + dateStr : ''}`;
+  const sections = [
+    { title: 'Analysis',                   body: v('s3_analysis') },
+    { title: 'In House Test Yield',        body: v('s3_yield') },
+    { title: 'Latent Failure at Districts',body: v('s3_latent') },
+  ].map(s => `
+    <div class="s3-section">
+      <div class="s3-sec-header">${esc(s.title)}</div>
+      <div class="s3-sec-body">${bulletsToHtml(s.body, 'List one bullet per line in the form →')}</div>
+    </div>
+  `).join('');
+  return `
+    <div class="sf s3-title">${esc(title)}</div>
+    <div class="sf s3-sections">${sections}</div>
+  `;
+}
+function renderS4() {
+  const blocks = [
+    { tag: 'Urgent / High Priority', cls: 'orange',
+      title: v('s4_urgent_title'), points: v('s4_urgent_points') },
+    { tag: 'Long Term', cls: 'green',
+      title: v('s4_long_term_title'), points: v('s4_long_term_points') },
+  ].map(b => `
+    <div class="s4-block">
+      <div class="s4-block-tag ${b.cls}">${esc(b.tag)}</div>
+      <div class="s4-block-body ${b.cls}">
+        ${b.title ? `<div class="s4-block-subtitle ${b.cls}">${esc(b.title)}</div>` : `<div class="s4-block-subtitle ${b.cls} empty-hint">add a topic</div>`}
+        ${bulletsToHtml(b.points, 'List one bullet per line in the form →')}
+      </div>
+    </div>
+  `).join('');
+  return `
+    <div class="sf s4-title">Open Questions,<br>Decisions Required</div>
+    <div class="sf s4-blocks">${blocks}</div>
+  `;
+}
+function renderS5() {
+  return `
+    <div class="sf s5-bg"></div>
+    <div class="sf s5-title">Plus and Delta</div>
+    <div class="sf s5-cards">
+      <div class="s5-card">
+        <div class="s5-icon">✓</div>
+        <div class="s5-card-title">PLUS</div>
+        <div class="s5-card-body">${bulletsToHtml(v('s5_plus'), 'list what went well in the form →')}</div>
+      </div>
+      <div class="s5-card">
+        <div class="s5-icon">?</div>
+        <div class="s5-card-title">DELTA</div>
+        <div class="s5-card-body">${bulletsToHtml(v('s5_delta'), 'list what could improve in the form →')}</div>
+      </div>
+    </div>
+  `;
+}
+function renderS6() {
+  if (!answers['s6_include']) {
+    return `
+      <div class="sf slide-disabled">
+        <div class="icon">▢</div>
+        <div class="msg">Internal Data slide is disabled</div>
+        <div class="sub">Toggle "Include this slide" in the form to add it</div>
+      </div>
+    `;
+  }
+  const dateStr = v('s3_date', '—');
+  return `
+    <div class="sf s6-title">Internal Data / Quantities as of ${esc(dateStr)}</div>
+    <div class="sf s6-grid">
+      ${['Warehouse Stock','Move To Stock','FALL Entry of Failures','PCA Part Numbers Reference'].map(p => `
+        <div class="s6-cell">
+          <div class="s6-cell-head">${esc(p)}</div>
+          <div class="s6-cell-body">[Paste table data here in PowerPoint]</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+function renderS7() {
+  if (!answers['s7_include']) {
+    return `
+      <div class="sf slide-disabled">
+        <div class="icon">▢</div>
+        <div class="msg">External Data slide is disabled</div>
+        <div class="sub">Toggle "Include this slide" in the form to add it</div>
+      </div>
+    `;
+  }
+  return `
+    <div class="sf s7-stack">
+      ${['External — Failed at District','External — CBM Info of Different POs'].map(t => `
+        <div class="s7-section">
+          <div class="s7-section-title">${esc(t)}</div>
+          <div class="s7-section-body">[Paste table data here in PowerPoint]</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+/* ============================================================
+   THUMBNAIL STRIP
+   ============================================================ */
+function renderThumbs() {
+  const strip = document.getElementById('thumbStrip');
+  strip.innerHTML = SLIDES_META.map(s => `
+    <div class="thumb ${s.num === currentSlide ? 'active' : ''}" data-slide="${s.num}" onclick="gotoSlide(${s.num})">
+      <span class="thumb-num">S${s.num}</span>
+      <div class="thumb-mini-wrap"><div class="thumb-mini" id="thumb-mini-${s.num}"></div></div>
+      <span class="thumb-status ${slideStatus(s.num)}"></span>
+    </div>
+  `).join('');
+  for (const s of SLIDES_META) updateThumb(s.num);
+}
+function updateThumb(num) {
+  const el = document.querySelector(`.thumb[data-slide="${num}"]`);
+  if (!el) return;
+  // Status dot
+  const status = el.querySelector('.thumb-status');
+  if (status) status.className = 'thumb-status ' + slideStatus(num);
+  // Active state
+  el.classList.toggle('active', num === currentSlide);
+  // Mini content
+  const mini = document.getElementById(`thumb-mini-${num}`);
+  if (mini) {
+    const bg = (num === 5) ? '#E8743C' : 'white';
+    mini.innerHTML = `<div class="slide-frame" style="position:relative; width:900px; aspect-ratio:16/9; background:${bg};">${getSlideHtml(num)}</div>`;
+  }
+}
+
+/* ============================================================
+   FORM RENDERER
+   ============================================================ */
+function renderForm() {
+  const meta = SLIDES_META[currentSlide - 1];
+  document.getElementById('formEyebrow').textContent = `Slide ${meta.num} of ${SLIDES_META.length}`;
+  document.getElementById('formTitle').textContent = meta.name;
+  document.getElementById('formDesc').textContent = meta.desc;
+
+  const body = document.getElementById('formBody');
+  const fs = FIELDS[currentSlide];
+  body.innerHTML = fs.map(f => {
+    if (f.id.startsWith('__')) {
+      return `<div class="form-divider">${esc(f.label)}</div>`;
+    }
+    if (f.type === 'toggle') {
+      const checked = !!answers[f.id];
+      return `
+        <div class="field-group">
+          <label class="field-toggle">
+            <input type="checkbox" ${checked ? 'checked' : ''} onchange="setVal('${f.id}', this.checked)">
+            <span class="toggle-text">${esc(f.label)}</span>
+          </label>
+          ${f.hint ? `<div class="field-hint" style="margin-top:8px;">${esc(f.hint)}</div>` : ''}
+        </div>
+      `;
+    }
+    const val = answers[f.id] || '';
+    const isTA = f.type === 'textarea';
+    const meta = f.required ? 'REQUIRED' : 'OPTIONAL';
+    return `
+      <div class="field-group">
+        <div class="field-label">
+          <span class="label-text">${esc(f.label)}</span>
+          <span class="label-meta">${meta}</span>
+        </div>
+        ${f.hint ? `<div class="field-hint">${esc(f.hint)}</div>` : ''}
+        ${isTA
+          ? `<textarea class="field-textarea" rows="${f.rows||3}" placeholder="${escAttr(f.placeholder||'')}" oninput="setVal('${f.id}', this.value)">${esc(val)}</textarea>`
+          : `<input class="field-input" type="text" placeholder="${escAttr(f.placeholder||'')}" value="${escAttr(val)}" oninput="setVal('${f.id}', this.value)">`
+        }
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('footerPrev').disabled = (currentSlide === 1);
+  document.getElementById('footerNext').disabled = (currentSlide === SLIDES_META.length);
+  document.getElementById('footerNext').textContent = (currentSlide === SLIDES_META.length) ? 'Last slide' : 'Next →';
+  updateFooterStatus();
+}
+function updateFooterStatus() {
+  const labelMap = { empty: 'Empty', partial: 'In progress', complete: 'Complete' };
+  document.getElementById('footerStatus').textContent = labelMap[slideStatus(currentSlide)];
+}
+
+/* ============================================================
+   PROGRESS / NAV
+   ============================================================ */
+function updateProgress() {
+  const total = totalFields();
+  const done = answeredFields();
+  const pct = total > 0 ? Math.round((done/total)*100) : 0;
+  document.getElementById('progressMini').style.width = pct + '%';
+  document.getElementById('completionLabel').textContent = pct + '% complete';
+  document.getElementById('fieldCount').textContent = `${done} / ${total} fields`;
+  updateFooterStatus();
+}
+function gotoSlide(num) {
+  currentSlide = num;
+  saveState();
+  renderSlide(num);
+  renderForm();
+  // Update active class on all thumbs
+  document.querySelectorAll('.thumb').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.slide) === num);
+  });
+  document.getElementById('slideCounter').textContent = `${num} / ${SLIDES_META.length}`;
+  document.getElementById('slideName').textContent = SLIDES_META[num-1].name;
+  document.getElementById('prevBtn').disabled = (num === 1);
+  document.getElementById('nextBtn').disabled = (num === SLIDES_META.length);
+}
+function navSlide(dir) {
+  const next = currentSlide + dir;
+  if (next < 1 || next > SLIDES_META.length) return;
+  gotoSlide(next);
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+function loadDemo() {
+  answers = {
+    s1_title: 'Manufacturing FAILURE TREND',
+    s1_subtitle: '2022–2025',
+    s1_pn: 'PN 102406465',
+    s1_stat1_num: '25x',
+    s1_stat1_desc: 'failure spike in 2025 vs 2022 baseline',
+    s1_stat2_num: '~6–25x',
+    s1_stat2_desc: 'increase vs prior years average',
+    s1_stat3_num: '4',
+    s1_stat3_desc: 'customer escapes (incoming test failure)',
+    s1_chart_data: '2022=4, 2023=4, 2024=25, 2025=100',
+    s2_board_pn: '102406465',
+    s2_component: '10155269',
+    s2_date_code: '2205',
+    s2_boards_tested: '152 boards tested in 2025',
+    s2_customer_impact: '4 failed at district level, all tested in 2025\nMost are from last 130 pcs DC 2205',
+    s2_production_status: 'Production Resumed at the end of this meeting',
+    s3_date: '6 April 2026',
+    s3_analysis: 'All warehouse stocks on 102406465 are screened as per SCM-26-EWR-01 and all passed\nOther 2 part numbers also tested in sample quantity and all passed RAM test\nFailure at districts only belong to last 130 pcs of component PN10155269 batch\nDownload failure from China show RAM',
+    s3_yield: 'Replace if fail\nTask to charge rework',
+    s3_latent: 'Field Notification SCM-26-EWR-01\nIn House Screening',
+    s4_urgent_title: 'Component Decision — New Batch or New Source?',
+    s4_urgent_points: 'Recommend to vendor: validate this date code and source from batch, or qualify alternate suppliers\nAgreed: Try a new batch\nWhen to lift Production Hold?\nWhat condition must be met before resuming?',
+    s4_long_term_title: 'Handoff root cause investigation to Supplier Quality team',
+    s4_long_term_points: 'Handoff investigation: storage, shelf life, handling to Vac Lo or SQP\nFailure Analysis on failed units from districts',
+    s5_plus: 'SCM is done quickly with full support from Engineering and Quality Managers\nFailure identified to specific batch of components\nFailure identified to specific vendor\nFailure identified to specific PCA part number\nTask to charge rework',
+    s5_delta: 'Lots of overhead\nUnsure how good is additional screening\nMay or may not find the exact cause',
+    s6_include: true,
+    s7_include: true,
+  };
+  saveState();
+  renderForm();
+  renderSlide(currentSlide);
+  renderThumbs();
+  updateProgress();
+  toast('Sample data loaded', 'success');
+}
+
+function askReset() { document.getElementById('resetSheet').classList.add('show'); }
+function closeReset() { document.getElementById('resetSheet').classList.remove('show'); }
+function doReset() {
+  answers = {};
+  currentSlide = 1;
+  saveState();
+  renderForm();
+  renderSlide(currentSlide);
+  renderThumbs();
+  updateProgress();
+  closeReset();
+  toast('Reset complete');
+}
+
+function toast(msg, cls = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (cls ? ' ' + cls : '');
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(() => { el.className = 'toast' + (cls ? ' ' + cls : ''); }, 2200);
+}
+
+/* ============================================================
+   PPTX GENERATION
+   ============================================================ */
+async function generatePPTX() {
+  const btn = document.getElementById('downloadBtn');
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = 'Generating…';
+
+  try {
+    const pres = new PptxGenJS();
+    pres.layout = 'LAYOUT_WIDE';
+    pres.title = v('s1_title','Manufacturing Trended Failure Analysis Report');
+
+    const ORANGE='E8743C', GREEN='4A7C3F', GREEN_DARK='2C5F2D',
+          INK='1A1F2C', INK_SOFT='4A5568', LIGHT='F7F5F0', WHITE='FFFFFF';
+
+    /* SLIDE 1 */
+    {
+      const s = pres.addSlide();
+      s.background = { color: WHITE };
+      s.addShape(pres.ShapeType.rect, { x:0,y:0,w:13.333,h:0.7, fill:{color:ORANGE}, line:{type:'none'}});
+      const titleParts = [v('s1_title','Report'), v('s1_subtitle'), v('s1_pn')].filter(Boolean).join(' | ');
+      s.addText(titleParts, { x:0.4,y:0.05,w:12.5,h:0.6, fontSize:20,bold:true,color:WHITE,fontFace:'Calibri',valign:'middle'});
+      const stats = [
+        { num: v('s1_stat1_num'), desc: v('s1_stat1_desc') },
+        { num: v('s1_stat2_num'), desc: v('s1_stat2_desc') },
+        { num: v('s1_stat3_num'), desc: v('s1_stat3_desc') }
+      ];
+      stats.forEach((st,i) => {
+        const y = 1.3 + i*1.95;
+        if (st.num) s.addText(st.num, {x:9.5,y,w:3.5,h:1.0, fontSize:54,bold:true,color:ORANGE,fontFace:'Calibri',align:'left',valign:'middle'});
+        if (st.desc) s.addText(st.desc, {x:9.5,y:y+1.05,w:3.5,h:0.7, fontSize:11,color:INK,fontFace:'Calibri'});
+      });
+      const cd = parseChartData(v('s1_chart_data'));
+      if (cd) {
+        s.addChart(pres.ChartType.bar, [{ name:'Failures', labels:cd.labels, values:cd.values }], {
+          x:0.5,y:1.1,w:8.5,h:5.8, barDir:'col', chartColors:[ORANGE],
+          showLegend:false, showTitle:false, catAxisLabelFontSize:12, valAxisLabelFontSize:10,
+          dataLabelFontSize:10, showValue:true, dataLabelColor:INK
+        });
+      } else {
+        s.addText('Annual Failure Trend', { x:0.5,y:1.3,w:8.5,h:0.5, fontSize:16,bold:true,color:INK_SOFT,fontFace:'Calibri'});
+        s.addShape(pres.ShapeType.rect, { x:0.5,y:1.9,w:8.5,h:5.0, fill:{color:LIGHT}, line:{color:'E5E1D8',width:1}});
+        s.addText('[Insert failure trend chart here]', { x:0.5,y:4.0,w:8.5,h:0.5, fontSize:14,italic:true,color:INK_SOFT,fontFace:'Calibri',align:'center'});
+      }
+    }
+    /* SLIDE 2 */
+    {
+      const s = pres.addSlide();
+      s.background = { color: WHITE };
+      s.addText('Situation\nOverview', { x:0.4,y:0.5,w:3.0,h:6.5, fontSize:36,bold:true,color:INK,fontFace:'Calibri',valign:'top'});
+      const fields = [
+        { label:'Board PN', value:v('s2_board_pn') },
+        { label:'Component Type', value:v('s2_component') },
+        { label:'Date Code In Use', value:v('s2_date_code') },
+        { label:'Customer Impact', value:combine(v('s2_boards_tested'), v('s2_customer_impact')) },
+        { label:'Production Status', value:v('s2_production_status') }
+      ];
+      let y = 0.6;
+      fields.forEach(f => {
+        s.addShape(pres.ShapeType.roundRect, { x:4.0,y,w:3.0,h:0.45, fill:{color:ORANGE}, line:{type:'none'}, rectRadius:0.05});
+        s.addText(f.label, { x:4.0,y,w:3.0,h:0.45, fontSize:12,bold:true,color:WHITE,fontFace:'Calibri',align:'center',valign:'middle'});
+        const lines = bullets(f.value);
+        const h = Math.max(0.7, 0.35 + lines.length*0.28);
+        s.addShape(pres.ShapeType.rect, { x:4.0,y:y+0.45,w:8.8,h, fill:{color:WHITE}, line:{color:ORANGE,width:1}});
+        if (lines.length) {
+          s.addText(lines.map(t => ({ text:t, options:{ bullet: lines.length>1 } })), {
+            x:4.15,y:y+0.5,w:8.6,h:h-0.1, fontSize:12,color:INK,fontFace:'Calibri',valign:'top'
+          });
+        }
+        y += 0.45 + h + 0.18;
+      });
+    }
+    /* SLIDE 3 */
+    {
+      const s = pres.addSlide();
+      s.background = { color: WHITE };
+      const dateStr = v('s3_date');
+      s.addText(`Action Summary${dateStr ? ' as of '+dateStr : ''}`, { x:0.4,y:0.4,w:3.5,h:1.5, fontSize:28,bold:true,color:INK,fontFace:'Calibri',valign:'top'});
+      const sections = [
+        { title:'Analysis', body:v('s3_analysis') },
+        { title:'In House Test Yield', body:v('s3_yield') },
+        { title:'Latent Failure at Districts', body:v('s3_latent') }
+      ];
+      let y = 0.5;
+      sections.forEach(sec => {
+        const items = bullets(sec.body);
+        const headerH = 0.4;
+        const bodyH = Math.max(0.6, 0.25 + items.length*0.30);
+        s.addShape(pres.ShapeType.rect, { x:4.2,y,w:8.7,h:headerH, fill:{color:ORANGE}, line:{type:'none'}});
+        s.addText(sec.title, { x:4.35,y,w:8.55,h:headerH, fontSize:13,bold:true,color:WHITE,fontFace:'Calibri',valign:'middle'});
+        s.addShape(pres.ShapeType.rect, { x:4.2,y:y+headerH,w:8.7,h:bodyH, fill:{color:WHITE}, line:{color:ORANGE,width:1}});
+        if (items.length) {
+          s.addText(items.map(t => ({ text:t, options:{ bullet:true } })), {
+            x:4.4,y:y+headerH+0.05,w:8.4,h:bodyH-0.1, fontSize:11,color:INK,fontFace:'Calibri',valign:'top'
+          });
+        }
+        y += headerH + bodyH + 0.2;
+      });
+    }
+    /* SLIDE 4 */
+    {
+      const s = pres.addSlide();
+      s.background = { color: WHITE };
+      s.addText('Open Questions,\nDecisions Required', { x:0.4,y:0.4,w:3.5,h:2.0, fontSize:26,bold:true,color:INK,fontFace:'Calibri',valign:'top'});
+      const blocks = [
+        { tag:'Urgent / High Priority', title:v('s4_urgent_title'), points:bullets(v('s4_urgent_points')), color:ORANGE },
+        { tag:'Long Term', title:v('s4_long_term_title'), points:bullets(v('s4_long_term_points')), color:GREEN_DARK }
+      ];
+      let y = 0.5;
+      blocks.forEach(b => {
+        s.addShape(pres.ShapeType.rect, { x:4.2,y,w:8.7,h:0.45, fill:{color:b.color}, line:{type:'none'}});
+        s.addText(b.tag, { x:4.35,y,w:8.55,h:0.45, fontSize:14,bold:true,color:WHITE,fontFace:'Calibri',valign:'middle'});
+        const bodyH = Math.max(1.5, 0.65 + b.points.length*0.32);
+        s.addShape(pres.ShapeType.rect, { x:4.2,y:y+0.45,w:8.7,h:bodyH, fill:{color:WHITE}, line:{color:b.color,width:1}});
+        if (b.title) s.addText(b.title, { x:4.4,y:y+0.5,w:8.4,h:0.45, fontSize:13,bold:true,italic:true,color:b.color,fontFace:'Calibri',valign:'top'});
+        if (b.points.length) {
+          s.addText(b.points.map(t => ({ text:t, options:{ bullet:true }})), {
+            x:4.4,y:y+1.0,w:8.4,h:bodyH-1.05, fontSize:11,color:INK,fontFace:'Calibri',valign:'top'
+          });
+        }
+        y += 0.45 + bodyH + 0.3;
+      });
+    }
+    /* SLIDE 5 */
+    {
+      const s = pres.addSlide();
+      s.background = { color: ORANGE };
+      s.addText('Plus and Delta', { x:0.5,y:0.4,w:12.3,h:0.8, fontSize:30,bold:true,color:WHITE,fontFace:'Calibri',align:'center',valign:'middle'});
+      const cardY=1.4, cardH=5.6, cardW=6.0, gap=0.4;
+      const startX = (13.333 - (cardW*2+gap))/2;
+      s.addShape(pres.ShapeType.rect, { x:startX,y:cardY,w:cardW,h:cardH, fill:{color:WHITE}, line:{type:'none'}});
+      s.addShape(pres.ShapeType.ellipse, { x:startX+cardW/2-0.4,y:cardY+0.35,w:0.8,h:0.8, fill:{color:GREEN}, line:{type:'none'}});
+      s.addText('✓', { x:startX+cardW/2-0.4,y:cardY+0.35,w:0.8,h:0.8, fontSize:36,bold:true,color:WHITE,fontFace:'Calibri',align:'center',valign:'middle'});
+      s.addText('PLUS', { x:startX,y:cardY+1.3,w:cardW,h:0.5, fontSize:22,bold:true,color:INK,fontFace:'Calibri',align:'center',valign:'middle'});
+      const plus = bullets(v('s5_plus'));
+      if (plus.length) s.addText(plus.map(t => ({text:t, options:{bullet:true}})), { x:startX+0.4,y:cardY+1.95,w:cardW-0.8,h:cardH-2.1, fontSize:13,color:INK,fontFace:'Calibri',valign:'top'});
+      const dx = startX + cardW + gap;
+      s.addShape(pres.ShapeType.rect, { x:dx,y:cardY,w:cardW,h:cardH, fill:{color:WHITE}, line:{type:'none'}});
+      s.addShape(pres.ShapeType.ellipse, { x:dx+cardW/2-0.4,y:cardY+0.35,w:0.8,h:0.8, fill:{color:GREEN}, line:{type:'none'}});
+      s.addText('?', { x:dx+cardW/2-0.4,y:cardY+0.35,w:0.8,h:0.8, fontSize:36,bold:true,color:WHITE,fontFace:'Calibri',align:'center',valign:'middle'});
+      s.addText('DELTA', { x:dx,y:cardY+1.3,w:cardW,h:0.5, fontSize:22,bold:true,color:INK,fontFace:'Calibri',align:'center',valign:'middle'});
+      const delta = bullets(v('s5_delta'));
+      if (delta.length) s.addText(delta.map(t => ({text:t, options:{bullet:true}})), { x:dx+0.4,y:cardY+1.95,w:cardW-0.8,h:cardH-2.1, fontSize:13,color:INK,fontFace:'Calibri',valign:'top'});
+    }
+    /* SLIDE 6 */
+    if (answers['s6_include']) {
+      const s = pres.addSlide();
+      s.background = { color: WHITE };
+      s.addText(`Internal Data / Quantities as of ${v('s3_date','—')}`, { x:0.4,y:0.3,w:12.5,h:0.6, fontSize:18,bold:true,color:INK,fontFace:'Calibri'});
+      const placeholders = ['Warehouse Stock','Move To Stock','FALL Entry of Failures','PCA Part Numbers Reference'];
+      const cellW=6.3, cellH=2.9, sx=0.4, sy=1.1;
+      placeholders.forEach((p,i) => {
+        const col=i%2, row=Math.floor(i/2);
+        const x=sx+col*(cellW+0.2), y=sy+row*(cellH+0.2);
+        s.addShape(pres.ShapeType.rect, { x,y,w:cellW,h:0.4, fill:{color:ORANGE}, line:{type:'none'}});
+        s.addText(p, { x:x+0.15,y,w:cellW-0.3,h:0.4, fontSize:12,bold:true,color:WHITE,fontFace:'Calibri',valign:'middle'});
+        s.addShape(pres.ShapeType.rect, { x,y:y+0.4,w:cellW,h:cellH-0.4, fill:{color:LIGHT}, line:{color:'E5E1D8',width:1}});
+        s.addText('[Paste table data here]', { x,y:y+0.4+(cellH-0.4)/2-0.2,w:cellW,h:0.4, fontSize:11,italic:true,color:INK_SOFT,fontFace:'Calibri',align:'center'});
+      });
+    }
+    /* SLIDE 7 */
+    if (answers['s7_include']) {
+      const s = pres.addSlide();
+      s.background = { color: WHITE };
+      [
+        { title:'External — Failed at District', y:0.3 },
+        { title:'External — CBM Info of Different POs', y:3.9 }
+      ].forEach(sec => {
+        s.addText(sec.title, { x:0.4,y:sec.y,w:12.5,h:0.5, fontSize:16,bold:true,color:INK,fontFace:'Calibri'});
+        s.addShape(pres.ShapeType.rect, { x:0.4,y:sec.y+0.55,w:12.5,h:2.9, fill:{color:LIGHT}, line:{color:'E5E1D8',width:1}});
+        s.addText('[Paste table data here]', { x:0.4,y:sec.y+0.55+1.2,w:12.5,h:0.4, fontSize:11,italic:true,color:INK_SOFT,fontFace:'Calibri',align:'center'});
+      });
+    }
+
+    const filename = `RAM-Failure-Report-${new Date().toISOString().slice(0,10)}.pptx`;
+    await pres.writeFile({ fileName: filename });
+    toast('Downloaded ' + filename, 'success');
+  } catch (err) {
+    console.error(err);
+    toast('Error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+loadState();
+renderForm();
+renderThumbs();
+renderSlide(currentSlide);
+updateProgress();
+gotoSlide(currentSlide);
+
+document.addEventListener('keydown', (e) => {
+  const tag = (document.activeElement?.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'button') return;
+  if (e.key === 'ArrowLeft') navSlide(-1);
+  if (e.key === 'ArrowRight') navSlide(1);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeReset(); });
+</script>
+</body>
+</html>
